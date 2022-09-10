@@ -1,11 +1,11 @@
 
-$user = Get-aduser pschwab -Properties thumbnailphoto
+$user = Get-aduser $username -Properties thumbnailphoto
 
 # Connect to Exchange Online (ExchangeOnline Module needed)
-if ((!(Get-PSSession | Where-Object {$_.computername -eq "outlook.office365.com"})) -and ($env:USERNAME -eq "svc-ad-mgmt"))
+if ((!(Get-PSSession | Where-Object {$_.computername -eq "outlook.office365.com"})))
 {
     $password = Get-Content "$PSScriptRoot\EncryptedPass.txt" | ConvertTo-SecureString
-    Connect-ExchangeOnline -AppId "580c25e4-1602-45c1-88af-1bc4eda557dc" -Organization "huismancloud.onmicrosoft.com" -CertificateFilePath 'c:\HuismanExchangeOnline.pfx' -CertificatePassword $password
+    
 } else {
     #Connect-ExchangeOnline
 }
@@ -26,7 +26,7 @@ function Set-UpdateThumbnailPhoto {
     [int]$Days = -1
     )
 
-    $photoData = Get-ADReplicationAttributeMetadata -Object $User.distinguishedName -server "nl-sch01-dc02" | Select-Object `
+    $photoData = Get-ADReplicationAttributeMetadata -Object $User.distinguishedName -server $dc | Select-Object `
           AttributeName, `
           AttributeValue, `
           LastOriginatingChangeTime, `
